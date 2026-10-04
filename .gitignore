@@ -1,0 +1,35 @@
+# SML/NJ build
+.cm/
+src/parse/pre/ml.grm.desc
+src/parse/pre/ml.grm.sig
+src/parse/pre/ml.grm.sml
+src/parse/pre/ml.lex.sml
+bld/build.smlnet.log
+bld/build.smlnet.err
+
+# Compiler heap images
+bin/smlnet.*-*
+
+# Helper tools and metadata caches that the compiler creates at startup
+# (see setupToolsInfo in src/clr/RuntimeEnv.sml)
+bin/v*/
+
+# Runtime environment detection (see src/clr/RuntimeEnv.sml)
+bld/getsysdir.out
+bin/getsysdir*.out
+
+# Executables, libraries and IL; the repository is source-only
+# (this includes the SML/NJ runtime copied by bld/buildsmlnet.bat
+# and bin/getsysdir.exe built from src/clr/getsysdir.cs)
+*.exe
+*.dll
+*.pdb
+*.il
+
+# SML.NET compilation state (see bin/clean.bat)
+.smlnetdep/
+.smlnetobj/
+.smlnetbld
+
+# macOS
+.DS_Store
