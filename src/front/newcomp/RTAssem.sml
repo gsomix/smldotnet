@@ -420,7 +420,7 @@ let
       (true, SOME name) =>
       (if RuntimeEnv.run { program = name, args = quote out ^
                            " -s " ^ Id.toString RuntimeNames.syslib ^
-                           " -r " ^ quote (OS.Path.joinDirFile { dir = RuntimeEnv.getSysDir(), file = "*.dll" }) ^
+                           " -r " ^ quote (RuntimeEnv.getSysDir() ^ "/*.dll") ^
                            String.concat (map (fn r => " -r " ^ quote r) assemblyFiles)
                            (*@HACK: restore ^ " >" ^ quote logname *) }
 	     = OS.Process.success
