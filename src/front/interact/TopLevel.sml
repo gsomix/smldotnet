@@ -56,7 +56,6 @@ end
 
 (*----------------------------------------------------------------------*)
 (* Entry point for command-line compiler				*)
-(*@todo akenn: catch and report exceptions from EnvVars etc.		*)
 (*----------------------------------------------------------------------*)
 fun entry (name : string, args) =
 let
@@ -137,5 +136,9 @@ in
 end
 
 end
+handle e => (print ("\n!!! COMPILER BUG: " ^ exnMessage e
+    ^ " raised at "
+    ^ Pretty.simpleVec "/" Gen.identity (SMLofNJ.exnHistory e) ^ "\n");
+    OS.Process.failure)
 
 end
