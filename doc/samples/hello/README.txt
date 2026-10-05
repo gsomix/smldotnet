@@ -7,7 +7,7 @@ greeting and exits.
 Build Instructions
 ------------------
 
-To build the demo, run
+To build the sample, run
 
 build.bat
 
@@ -18,7 +18,7 @@ or, on Linux and macOS,
 Running the Code
 ----------------
 
-To execute the demo, run
+To execute the sample, run
 
 Hello.exe
 

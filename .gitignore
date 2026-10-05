@@ -27,12 +27,12 @@ bin/netstandard2.0/
 .smlnetobj/
 .smlnetbld
 
-# Demo build outputs
-demos/**/*.exe
-demos/**/*.dll
-demos/**/*.pdb
-demos/**/*.il
-demos/**/*.runtimeconfig.json
+# Sample build outputs
+doc/samples/**/*.exe
+doc/samples/**/*.dll
+doc/samples/**/*.pdb
+doc/samples/**/*.il
+doc/samples/**/*.runtimeconfig.json
 
 # macOS
 .DS_Store

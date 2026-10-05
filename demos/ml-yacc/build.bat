@@ -1,1 +1,0 @@
-smlnet @ml-yacc.smlnet

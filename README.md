@@ -76,8 +76,8 @@ Executables get a `.runtimeconfig.json` for .NET 10
 or later and run with `dotnet`:
 
 ```
-cd demos/hello
-../../bin/smlnet.sh Hello
+cd doc/samples/hello
+../../../bin/smlnet.sh Hello
 dotnet Hello.exe
 ```
 
