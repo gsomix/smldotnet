@@ -14,10 +14,9 @@ This  project  is  now defunct  and  what  follows
 applies  to the  last  stable release  as of  2006
 which is also the state of the current tree.
 
-This distribution only supports  the 2.0 and lower
-versions  of  the  Microsoft  .NET  Framework  and
-Microsoft Visual Studio .NET 2005. SML.NET remains
-compatible with the initial 1.0 and 1.1 releases.
+The 2006 release supported the .NET Framework 2.0 and lower. 
+This tree targets modern .NET instead (see "Targeting .NET"
+below).
 
 Although SML.NET fully  supports SML polymorphism,
 it does not yet produce or consume .NET generics
@@ -32,8 +31,9 @@ or macOS run
 bld/buildsmlnet.sh
 ```
 
-to produce the heap image `bin/smlnet.<arch>-<os>`,
-then start the compiler with `bin/smlnet.sh`. Set
+to produce the heap image `bin/smlnet.<arch>-<os>`
+and the .NET tools (see below), then start the
+compiler with `bin/smlnet.sh`. Set
 `SMLNJ_HOME` to use an SML/NJ installation that is
 not on the `PATH`. The lexer is generated with the
 legacy `ml-lex` (installed with SML/NJ), so it must
@@ -54,6 +54,39 @@ his fork https://github.com/DarinM223/smldotnet:
 [@DarinM223]: https://github.com/DarinM223
 [922f305]: https://github.com/DarinM223/smldotnet/commit/922f305cfc701dc5eb17db22a43214a98a42353d
 [8c238e1]: https://github.com/DarinM223/smldotnet/commit/8c238e136fbcc193eb3e3038bd616212015dfc6b
+
+Targeting .NET
+--------------
+
+Building requires the .NET 10 SDK (`dotnet` on the
+`PATH`). `bld/buildsmlnet.sh` runs
+`dotnet build src/clr/tools/tools.slnx`, which builds
+`getmeta` and `clslist` (`src/clr/*.cs`) and fetches
+`ilasm`, `ILVerify` and the .NET Standard 2.0
+reference assemblies from NuGet:
+
+```
+bin/tools/               getmeta.dll, clslist.dll, ilasm, ILVerify.dll
+bin/ref/netstandard2.0/  netstandard.dll and facades
+```
+
+SML.NET compiles against `netstandard.dll`, so its
+libraries work with any .NET Standard 2.0 consumer.
+Executables get a `.runtimeconfig.json` for .NET 10
+or later and run with `dotnet`:
+
+```
+cd demos/hello
+../../bin/smlnet.sh Hello
+dotnet Hello.exe
+```
+
+The compiler's `run` command also uses `dotnet`; set
+`SMLNETRUN` to use something else. To run an
+executable, copy the assemblies it references, other
+than the .NET Standard ones, next to it. With
+`codegen.verify` on, as in `bin/config.smlnet`, the
+compiler checks its output with ILVerify.
 
 Features
 --------

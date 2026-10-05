@@ -12,6 +12,9 @@ The demo can (typically) be executed by running the resulting *.exe file.
 
 
 
+hello/ the smallest console application: prints a greeting and
+       exits.
+
 sort/  a simple console application that sorts a given number of
        pseudo-random integers.
 

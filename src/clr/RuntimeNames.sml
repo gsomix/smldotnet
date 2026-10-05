@@ -32,8 +32,7 @@ val buildFile = ".smlnetbld"
 (* clr specific - the name of the dummy file used for unknown source locations *)
 val nullFile = "null.sml" 
 val assemCommand = "ilasm"
-val verifyCommand = "peverify"
-val getsysdirCommand = "getsysdir"
+val verifyCommand = "ILVerify"
 
 (* File extensions *)
 val executableExt = "exe"
@@ -46,7 +45,7 @@ val scriptExt = "smlnet"
 (*----------------------------------------------------------------------*)
 
 (* Assemblies *)
-val syslib = Id.fromString "mscorlib"
+val syslib = Id.fromString "netstandard"
 
 (* Constructor and method names *)
 val instanceConstructor = Id.fromString ".ctor"

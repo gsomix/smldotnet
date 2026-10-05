@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="clslist/clslist.csproj" />
+  <Project Path="getmeta/getmeta.csproj" />
+  <Project Path="sdk/sdk.csproj" />
+</Solution>

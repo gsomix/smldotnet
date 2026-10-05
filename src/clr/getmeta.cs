@@ -9,6 +9,8 @@ class GetMeta
 {
 static NumberFormatInfo NFI = CultureInfo.InvariantCulture.NumberFormat;
 
+static Type VoidType, ArrayType, StringType, CharType, SingleType, DoubleType;
+
 static String fullName(Type t){
 	return t.ToString();
 }
@@ -28,10 +30,8 @@ static void printLine(String s)
 // Also exclude generic types for now
 static bool Importable(Type t)
 {
-#if WHIDBEY
   if (t.IsGenericType)
     return false;
-#endif
   if (t.IsPointer)
     return false;
   if (t.IsArray)
@@ -42,11 +42,11 @@ static bool Importable(Type t)
 // Print a CLR type in its imported SML form.
 static void printType(Type c)
 {
-  if (c==typeof(void)) print("%");
+  if (c==VoidType) print("%");
   else
   {
     /* The second condition is necessary only because of a URT Bug */
-    if (c.IsArray && c!=typeof(System.Array))
+    if (c.IsArray && c!=ArrayType)
     {
       print("a");
       printType(c.GetElementType());
@@ -61,7 +61,7 @@ static void printType(Type c)
     {
       if (c.IsValueType) 
       {
-        if ((c.IsPrimitive && c != typeof(float) && c != typeof(double))
+        if ((c.IsPrimitive && c != SingleType && c != DoubleType)
           || c.IsEnum)
           print("V");
         else
@@ -69,20 +69,18 @@ static void printType(Type c)
       }
       else
       {
-        if (c == typeof(string))
+        if (c == StringType)
           print("C");
         else
           print("c");
       }
       print(c.Assembly.GetName().Name + "!");
       print(fullName(c) + "!");
-#if WHIDBEY
      if (c.IsGenericType) {
        foreach (Type t in c.GetGenericArguments()) {
          printType(t);
        }
      }
-#endif
 
     }
   }
@@ -95,10 +93,8 @@ static void DumpMethod(Type c, MethodInfo methi)
   int n = pi.Length;
   String name = methi.Name;
 
-#if WHIDBEY
   if (methi.IsGenericMethodDefinition)
     return;
-#endif
   foreach (ParameterInfo p in pi) {
     if (!Importable(p.ParameterType)) return;
   }
@@ -190,14 +186,14 @@ static void DumpFields(Type c, bool isenum)
 
       if (fldi.IsLiteral)
       {
-        Object v = fldi.GetValue(null);
+        Object v = fldi.GetRawConstantValue();
         Type ft = fldi.FieldType;
         print("=");
         printType(t);
-        if (ft == typeof(char))
+        if (ft == CharType)
              {print (System.Convert.ToUInt32((System.Char)v).ToString(NFI));}  
         else 
-	if (ft == typeof(string)) {
+	if (ft == StringType) {
           if (v == null) {
 	      print ("null");
 	  }
@@ -210,7 +206,7 @@ static void DumpFields(Type c, bool isenum)
 	  };
 	}
         else {
-	  if(isenum) {print (((System.IConvertible)(System.Enum)v).ToInt32(null).ToString(NFI));}  
+	  if(isenum) {print (((System.IConvertible)v).ToInt32(null).ToString(NFI));}  
           else if (v is System.Double) print(((System.Double)v).ToString("R",NFI));  
           else if (v is System.Single) print(((System.Single)v).ToString("R",NFI));  
 	  else {print(v.ToString(/* NFI ?*/));};
@@ -262,10 +258,17 @@ static void DumpType(Type c)
   DumpMethods(c);
 }
 
-static int Run(String TypeName, String AssemblyFile, String AssemblyStamp)
+static int Run(String TypeName, String AssemblyFile, String AssemblyStamp, String[] SearchDirs)
 {
   Assembly a = null;
-  try {a = Assembly.LoadFrom(AssemblyFile);} 
+  try { MetadataLoadContext mlc = LoadContext.Create(AssemblyFile, SearchDirs);
+        VoidType = mlc.CoreAssembly.GetType("System.Void");
+        ArrayType = mlc.CoreAssembly.GetType("System.Array");
+        StringType = mlc.CoreAssembly.GetType("System.String");
+        CharType = mlc.CoreAssembly.GetType("System.Char");
+        SingleType = mlc.CoreAssembly.GetType("System.Single");
+        DoubleType = mlc.CoreAssembly.GetType("System.Double");
+        a = mlc.LoadFromAssemblyPath(Path.GetFullPath(AssemblyFile));}
   catch {};
 
   if (a == null) 
@@ -298,37 +301,27 @@ static int Run(String TypeName, String AssemblyFile, String AssemblyStamp)
 
 static void Usage()
 {
-#if WHIDBEY
-   print("Usage: getmeta2 [TypeName] [AssemblyFile] [AssemblyStamp] [out] \n\n");
-#else
-   print("Usage: getmeta [TypeName] [AssemblyFile] [AssemblyStamp] [out] \n\n");
-#endif
+   print("Usage: getmeta TypeName AssemblyFile AssemblyStamp [SearchDir ...] out \n\n");
 }
 
 public static int Main(String[] a)
 {
-  String TypeName = null;
-  String AssemblyFile = null;
-  String AssemblyStamp = null;
   String[] args = System.Environment.GetCommandLineArgs();  
-  if (args.Length == 1 || args.Length > 5){Usage();return -1;};
-  if (args.Length > 1) TypeName = args[1];
-  if (args.Length > 2) AssemblyFile = args[2];
-  if (args.Length > 3) AssemblyStamp = args[3];
-  if (args.Length > 4) 	{       
-      try { TextWriter tmp = Console.Out;
-	    FileStream fs1 = new FileStream(args[4], FileMode.Create);
-	    StreamWriter sw1 = new StreamWriter(fs1);
-	    Console.SetOut(sw1);	
-	    int result = Run(TypeName,AssemblyFile,AssemblyStamp);
-	    sw1.Close();
-	    Console.SetOut(tmp);
-            return result;}
-      catch {print ("Cannot open file"); return -1;}
-  }
-  else {
-      return Run(TypeName,AssemblyFile,AssemblyStamp);
-  };
+  if (args.Length < 5){Usage();return -1;};
+  String TypeName = args[1];
+  String AssemblyFile = args[2];
+  String AssemblyStamp = args[3];
+  String[] SearchDirs = new String[args.Length - 5];
+  Array.Copy(args, 4, SearchDirs, 0, SearchDirs.Length);
+  try { TextWriter tmp = Console.Out;
+	FileStream fs1 = new FileStream(args[args.Length - 1], FileMode.Create);
+	StreamWriter sw1 = new StreamWriter(fs1);
+	Console.SetOut(sw1);	
+	int result = Run(TypeName,AssemblyFile,AssemblyStamp,SearchDirs);
+	sw1.Close();
+	Console.SetOut(tmp);
+        return result;}
+  catch {print ("Cannot open file"); return -1;}
 }
 
 }

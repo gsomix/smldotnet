@@ -60,6 +60,7 @@ Group
 is
    $/smlnj-lib.cm
    $/basis.cm
+   word32conv/sources.cm
    
    (* class handles *)
    handles/CLASSHANDLE.sig

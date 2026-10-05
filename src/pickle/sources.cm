@@ -2,6 +2,7 @@ Group is
   $/smlnj-lib.cm
   $/basis.cm
   ../gen/sources.cm
+  ../common/word32conv/sources.cm
   PICKLESIG.sig
   BASEPICKLESIG.sig
   CODEC.sig

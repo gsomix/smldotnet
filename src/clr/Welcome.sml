@@ -16,7 +16,7 @@ val showTools = Controls.add true "env.showTools"
 (*----------------------------------------------------------------------*)
 fun welcomeMessage () =
 let
-  val frameworkVersion = "\n  Running on .NET Framework v" ^ RuntimeEnv.getVersion ()
+  val frameworkVersion = "\n  Targeting " ^ RuntimeEnv.getVersion ()
   val tools = if not (Controls.get showTools) then ""
               else "\n  Using assembler in " ^ RuntimeEnv.getIlasmFileName() ^
                    "\n  Using class list tool in " ^ RuntimeEnv.getClslistFileName() ^

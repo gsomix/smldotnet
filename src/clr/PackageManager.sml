@@ -159,6 +159,10 @@ fun strip_nl s = String.substring(s,0,String.size(s) - 1)
 fun searchPath () =
     OS.FileSys.getDir()::RuntimeEnv.getSysDir():: !libPath @ (!lib);
 
+(* Where clslist and getmeta look for referenced assemblies *)
+fun searchPathArgs () =
+    String.concat (map (fn dir => " " ^ quote (PathConv.toExternal dir)) (searchPath()))
+
 fun fileExists filename = 
     ((* PrintManager.print ("\n Probing " ^filename); *)
      OS.FileSys.access(PathConv.toExternal filename,[OS.FileSys.A_READ])) handle _ => false
@@ -210,7 +214,7 @@ let
 
     fun nofile () =
             if RuntimeEnv.runHelper { program = RuntimeEnv.getClslistFileName(), args =
-   				      quote (PathConv.toExternal assemblyFile) ^ " " ^ stamp,
+   				      quote (PathConv.toExternal assemblyFile) ^ " " ^ stamp ^ searchPathArgs(),
 				      out = PathConv.toExternal filename } =
 		OS.Process.success 
             then dodecode true
@@ -328,7 +332,7 @@ val _ = Commands.addShort ("reference", "r")
   fn dirs =>  if null dirs 
 	      then (setReferences []; 
 		    PrintManager.println "References cleared";
-		    PrintManager.println "Warning: all projects *require* at least \"reference mscorlib.dll, System.dll\"";
+		    PrintManager.println "Warning: all projects *require* at least \"reference netstandard.dll\"";
 		    OS.Process.success)
               else (setReferences (map #1 dirs @ getReferences()); 
 		    OS.Process.success),(*@TODO: don't ignore errors *)
@@ -383,7 +387,7 @@ let
           fun nofile () =
             if RuntimeEnv.runHelper { program=RuntimeEnv.getGetmetaFileName(), args = quote name ^ " " ^
 				      quote (PathConv.toExternal assemblyFile) ^
-		                      " " ^ stamp, out = PathConv.toExternal filename } = 
+		                      " " ^ stamp ^ searchPathArgs(), out = PathConv.toExternal filename } = 
               OS.Process.success 
             then dodecode true
             else NONE

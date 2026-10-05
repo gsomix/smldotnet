@@ -63,7 +63,7 @@ struct
    fun i2 is=Word32.toIntX(getword(is,2,true))
    fun i4 is=Word32.toIntX(getword(is,4,true))
 
-   fun W2I w=Int32.fromLarge(Word32.toLargeIntX w)
+   val W2I=Word32Conv.toInt32X
    fun I1 is=W2I(getword(is,1,true))
    fun I2 is=W2I(getword(is,2,true))
    fun I4 is=W2I(getword(is,4,true))

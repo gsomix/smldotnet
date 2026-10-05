@@ -10,26 +10,29 @@ bld/build.smlnet.err
 # Compiler heap images
 bin/smlnet.*-*
 
-# Helper tools and metadata caches that the compiler creates at startup
-# (see setupToolsInfo in src/clr/RuntimeEnv.sml)
-bin/v*/
+# SML/NJ runtime copied by bld/buildsmlnet.bat
+bin/run.x86-win32.exe
 
-# Runtime environment detection (see src/clr/RuntimeEnv.sml)
-bld/getsysdir.out
-bin/getsysdir*.out
+# .NET tools and reference assemblies (src/clr/tools)
+bin/tools/
+bin/ref/
+src/clr/tools/*/obj/
+bld/build.tools.log
 
-# Executables, libraries and IL; the repository is source-only
-# (this includes the SML/NJ runtime copied by bld/buildsmlnet.bat
-# and bin/getsysdir.exe built from src/clr/getsysdir.cs)
-*.exe
-*.dll
-*.pdb
-*.il
+# Metadata caches
+bin/netstandard2.0/
 
-# SML.NET compilation state (see bin/clean.bat)
+# SML.NET compilation state
 .smlnetdep/
 .smlnetobj/
 .smlnetbld
+
+# Demo build outputs
+demos/**/*.exe
+demos/**/*.dll
+demos/**/*.pdb
+demos/**/*.il
+demos/**/*.runtimeconfig.json
 
 # macOS
 .DS_Store

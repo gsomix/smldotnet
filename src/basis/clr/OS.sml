@@ -437,38 +437,9 @@ datatype access_mode
        | A_WRITE
        | A_EXEC
 
-local (*@TODO: Review*)
-    (* conversions between CLI access permissions and words and access_mode *)
-    structure Permissions = System.Security.Permissions
-    fun toWord (Permissions.FileIOPermissionAccess i) = Word.fromInt(i)
-    fun fromWord w = Permissions.FileIOPermissionAccess (Word.toInt w) 
-    fun fromMode A_EXEC = 0w0 (*@TODO: what should this mean on the CLI, if anything? *)
-      | fromMode A_READ = toWord(Permissions.FileIOPermissionAccess.Read)
-      | fromMode A_WRITE  = toWord(Permissions.FileIOPermissionAccess.Write)
-in
-fun access (s:string, modes) =  
-let
-  val (exists,isDir) = if System.IO.File.Exists(s) 
-			   then (true,false) 
-		       else if System.IO.Directory.Exists(s) 
-				then (true,true)
-			    else (false,false)
-  fun test [] = true
-  |   test modes = 
-      let
-	  val f = if isDir 
-		  then System.IO.DirectoryInfo(s):>System.IO.FileSystemInfo
-		  else System.IO.FileInfo(s):>System.IO.FileSystemInfo 
-    	  val fullname = valOf(f.#get_FullName())
-          val access = fromWord(List.foldl (fn (mode,w) => Word.orb(w,fromMode(mode))) 0w0 modes)
-          val p = System.Security.Permissions.FileIOPermission(access,fullname)
-      in
-          (p.#Demand();true handle _ => false)
-      end 
-in
-  exists andalso (test modes)
-end
-end
+(*@TODO: Security permissions are not available on netstandard *)
+fun access (s:string, modes : access_mode list) =
+  System.IO.File.Exists(s) orelse System.IO.Directory.Exists(s)
 
 (*@TODO: improve *)
 type file_id = string (* the canonical full path to the file or directory *)

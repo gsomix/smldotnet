@@ -32,11 +32,11 @@ struct
          then n*10
          else
             let
-               val w=Word32.fromLargeInt(Int32.toLarge n)
+               val w=Word32Conv.fromInt32 n
                val (carry,mul)=MulCarry.mul10 w
             in
                if carry=0w0
-               then Int32.fromLarge(Word32.toLargeIntX mul)
+               then Word32Conv.toInt32X mul
                else raise Overflow
             end
 
@@ -45,11 +45,11 @@ struct
          then n*16
          else
             let
-               val w=Word32.fromLargeInt(Int32.toLarge n)
+               val w=Word32Conv.fromInt32 n
                val (carry,mul)=MulCarry.mul16 w
             in
                if carry=0w0
-               then Int32.fromLarge(Word32.toLargeIntX mul)
+               then Word32Conv.toInt32X mul
                else raise Overflow
             end
 
@@ -58,12 +58,12 @@ struct
          then n-Int32.fromLarge(Int.toLarge digit)
          else
             let
-               val w=Word32.fromLargeInt(Int32.toLarge n)
+               val w=Word32Conv.fromInt32 n
                val d=Word32.fromInt digit
                val res=Word32.+(w,d)
             in
                if Word32.>=(res,w)
-               then Int32.fromLarge(Word32.toLargeIntX res)
+               then Word32Conv.toInt32X res
                else raise Overflow
             end
 
@@ -93,8 +93,8 @@ struct
 
       val toShift=fromInt
 
-      fun w2i w=Int32.fromLarge(Word32.toLargeIntX w)
-      fun i2w i=Word32.fromLargeInt(Int32.toLarge i)
+      fun w2i w=Word32Conv.toInt32X w
+      fun i2w i=Word32Conv.fromInt32 i
       fun W2w x=Word.fromLargeWord(Word32.toLargeWord x)
 
       fun deword f (x,y)= w2i(f(i2w x,i2w y))

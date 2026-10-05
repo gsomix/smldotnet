@@ -12,8 +12,18 @@ fi
 
 echo "Build SML.NET command-line compiler"
 echo "-----------------------------------"
-echo "Building SML.NET binary; log in $SMLNETPATH/bld/build.smlnet.log"
 cd "$SMLNETPATH"
+
+# Fills bin/tools and bin/ref (see src/clr/tools)
+echo "Building SML.NET tools; log in $SMLNETPATH/bld/build.tools.log"
+if ! dotnet build src/clr/tools/tools.slnx -c Release \
+     > bld/build.tools.log 2>&1; then
+  echo "Failed to build SML.NET tools: tail of $SMLNETPATH/bld/build.tools.log follows."
+  tail -n 40 bld/build.tools.log
+  exit 1
+fi
+
+echo "Building SML.NET binary; log in $SMLNETPATH/bld/build.smlnet.log"
 if ! ml-build "$@" src/sources.cm TopLevel.entry bin/smlnet \
      > bld/build.smlnet.log 2>&1; then
   echo "Failed to build SML.NET compiler: tail of $SMLNETPATH/bld/build.smlnet.log follows."

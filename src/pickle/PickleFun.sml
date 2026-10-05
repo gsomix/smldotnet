@@ -23,8 +23,7 @@ val char : char PU = wrap (Byte.byteToChar, Byte.charToByte) byte
 val word32 = (*@TODO:delete
 	      wrap (Word32.fromLargeWord, Word32.toLargeWord) *)
              (ord 0wxffffffff)
-val int32 = wrap (Int32.fromLarge o Word32.toLargeIntX, 
-		  Word32.fromLargeInt o Int32.toLarge) word32
+val int32 = wrap (Word32Conv.toInt32X, Word32Conv.fromInt32) word32
 
 fun option p = alttag (fn NONE => 0 | SOME _ => 1)
                    [wrap (fn () => NONE, fn NONE => ()) unit,

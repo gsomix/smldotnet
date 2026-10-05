@@ -98,7 +98,7 @@ struct
    fun u4(i)=if isu4(i) then w4(Word.fromInt(i)) else
       raise Fail "Overflow in u4"
 
-   fun fromInt32 i=Word32.fromLargeInt(Int32.toLarge i)
+   val fromInt32=Word32Conv.fromInt32
 
    fun I1(i)=if isI1(i) then W1(fromInt32(i)) else
       raise Fail "Overflow in I1"
@@ -132,5 +132,5 @@ struct
           NONE
    end
 
-   fun Log2 i=WLog2(Word32.fromLargeInt(Int32.toLarge i))
+   fun Log2 i=WLog2(fromInt32 i)
 end

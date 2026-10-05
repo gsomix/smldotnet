@@ -8,7 +8,7 @@ struct
    val fromWordPair = P
    fun toWordPair (P p) = p
 
-   val W2i=Int32.fromLarge o Word32.toLargeIntX 
+   val W2i=Word32Conv.toInt32X
    val i2w=Word.fromInt
 
    structure pack:>PACKABLE where type t=t =

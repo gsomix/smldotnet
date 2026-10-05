@@ -203,8 +203,8 @@ val smallints = [(* "-1", *) "0", "1", "2", "3", "4", "5", "6", "7", "8"]
 val ilasmOptions = ref ([]:(string * string option) list)
 
 fun mkOptions() = Pretty.simpleVec " " 
-                (fn (option,SOME value) => "/"^option ^ "=" ^value
-		  | (option,NONE) => "/"^option) (!ilasmOptions)
+                (fn (option,SOME value) => "-"^option ^ "=" ^value
+		  | (option,NONE) => "-"^option) (!ilasmOptions)
 
 val _ = Commands.add "ilasm"
 {
@@ -375,8 +375,8 @@ fun emit (projname, emitter) =
 let
 
   val ilasmCmd = RuntimeEnv.getIlasmFileName()
-  val translateLines = RuntimeEnv.getVersion() < "2" andalso not (RuntimeEnv.getCompilerIlasm())
-  val emitLineSpans = RuntimeEnv.getVersion() >= "2" orelse RuntimeEnv.getCompilerIlasm()
+  val translateLines = not (RuntimeEnv.getCompilerIlasm())
+  val emitLineSpans = RuntimeEnv.getCompilerIlasm()
 
 
   val {translateInstr,startDbg,finishDbg} = mkDebugOps(projname,translateLines,emitLineSpans)
@@ -403,12 +403,12 @@ let
 	    outputRefDeclOpt("  .ver ",version);
             emitLine "}"
 	end	
-  val options = case kind of TargetManager.Lib => "/dll " | _ => ""
-  val options = if Controls.get RTInstrs.debug then " /DEBUG " ^ options else options
-  val options = "/QUIET " ^ options
+  val options = case kind of TargetManager.Lib => "-DLL " | _ => ""
+  val options = if Controls.get RTInstrs.debug then " -DEBUG " ^ options else options
+  val options = "-QUIET " ^ options
   val options = options ^ " " ^ mkOptions()
   val logname = asm ^ ".log"
-  val ilasmCmdLine = ilasmCmd ^ " " ^ options ^ " " ^ quote asm ^ " /out=" ^ quote out
+  val ilasmCmdLine = ilasmCmd ^ " " ^ options ^ " " ^ quote asm ^ " -OUTPUT=" ^ quote out
       (*@HACK: restore ^ " >" ^ quote logname *)
 
   fun runVerifier () =    
@@ -418,8 +418,11 @@ let
     else
     case (Controls.get peverify, RuntimeEnv.getPeverifyFileName()) of
       (true, SOME name) =>
-      (if OS.Process.system (name ^ " " ^ quote out (*@HACK: restore ^ " >" ^ quote logname *) 
-	    )
+      (if RuntimeEnv.run { program = name, args = quote out ^
+                           " -s " ^ Id.toString RuntimeNames.syslib ^
+                           " -r " ^ quote (OS.Path.joinDirFile { dir = RuntimeEnv.getSysDir(), file = "*.dll" }) ^
+                           String.concat (map (fn r => " -r " ^ quote r) assemblyFiles)
+                           (*@HACK: restore ^ " >" ^ quote logname *) }
 	     = OS.Process.success
 	then true
 	else (PrintManager.println ("Verification failed" (*@HACK: restore  "find details in " ^ quote logname*)); 
@@ -619,7 +622,7 @@ in
   (* Header stuff *)
   startDbg projname;
 
-  (* we do this early so that ilasm /DEBUG picks up mscorlib correctly *)
+  (* we do this early so that ilasm -DEBUG picks up the system library correctly *)
   List.app outputDeclExtern assemblyFiles;  
 
   emitLine (".assembly '" ^ assembly ^"'"); 
@@ -639,7 +642,8 @@ in
 	ilasmCmdLine
 	)
        = OS.Process.success)
-  then runVerifier ()
+  then runVerifier () andalso
+       (kind <> TargetManager.Exe orelse RuntimeEnv.writeRuntimeConfig out)
   else (PrintManager.println ("Assembler failed, invoked with: " ^ ilasmCmdLine (*@HACK: restore : "find details in " ^ logname *)); 
 	false)
 end

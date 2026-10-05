@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RollForward>Major</RollForward>
+    <UseAppHost>false</UseAppHost>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <SmlNetBinDir>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', '..', 'bin'))</SmlNetBinDir>
+    <SmlNetToolsDir>$(SmlNetBinDir)tools/</SmlNetToolsDir>
+    <SmlNetRefDir>$(SmlNetBinDir)ref/netstandard2.0/</SmlNetRefDir>
+    <OutDir>$(SmlNetToolsDir)</OutDir>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <MetadataLoadContextVersion>10.0.12</MetadataLoadContextVersion>
+    <IlasmVersion>10.0.12</IlasmVersion>
+    <ILVerifyVersion>10.0.12</ILVerifyVersion>
+    <NetStandardLibraryVersion>2.0.3</NetStandardLibraryVersion>
+  </PropertyGroup>
+</Project>

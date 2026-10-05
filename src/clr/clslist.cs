@@ -66,35 +66,31 @@ static void print(string field,Version v)
 
 static bool IsGeneric(Type c)
 {
-#if WHIDBEY
   return (c.IsGenericTypeDefinition);
-#else
-  return false;
-#endif
 }
 
 static bool Importable(Type c)
 {
   if (!c.IsPublic && !c.IsNestedPublic)
     return false;
-  if (Environment.Version.Major >= 2 && IsGeneric(c))
+  if (IsGeneric(c))
     return false;
   return true;
 }
 
-static int Run(String AssemblyFile,String AssemblyStamp)
+static Type StringType, SingleType, DoubleType;
+
+static int Run(String AssemblyFile,String AssemblyStamp,String[] SearchDirs)
 {
   Assembly a = null;
 
   print("clslist 9\n");
-  if (AssemblyFile == null) 
-  {
-    a = Assembly.Load("mscorlib.dll");
-  }
-  else
-  { try { a = Assembly.LoadFrom(AssemblyFile);}
-    catch (Exception e) { Console.WriteLine("Error: " + e.ToString()); };
-  }
+  try { MetadataLoadContext mlc = LoadContext.Create(AssemblyFile, SearchDirs);
+        StringType = mlc.CoreAssembly.GetType("System.String");
+        SingleType = mlc.CoreAssembly.GetType("System.Single");
+        DoubleType = mlc.CoreAssembly.GetType("System.Double");
+        a = mlc.LoadFromAssemblyPath(Path.GetFullPath(AssemblyFile));}
+  catch (Exception e) { Console.WriteLine("Error: " + e.ToString()); };
 
   if (a == null) 
   {
@@ -124,7 +120,7 @@ static int Run(String AssemblyFile,String AssemblyStamp)
         print(".");
       else
         print("C");
-      if (cs[i] == typeof(string) || cs[i].IsEnum || (cs[i].IsPrimitive && cs[i] != typeof(float) && cs[i] != typeof(double)))
+      if (cs[i] == StringType || cs[i].IsEnum || (cs[i].IsPrimitive && cs[i] != SingleType && cs[i] != DoubleType))
         print("=");
       else
         print(".");
@@ -145,35 +141,26 @@ static int Run(String AssemblyFile,String AssemblyStamp)
 
 static void Usage()
 {
-#if WHIDBEY
-  print("Usage: clslist2 [AssemblyFile] [AssemblyStamp] [out] \n\n");
-#else
-  print("Usage: clslist [AssemblyFile] [AssemblyStamp] [out] \n\n");
-#endif
+  print("Usage: clslist AssemblyFile AssemblyStamp [SearchDir ...] out \n\n");
 }
 
 public static int Main(String[] a)
 {
-  String AssemblyFile = null;
-  String AssemblyStamp = null;
   String[] args = System.Environment.GetCommandLineArgs();  
-  if (args.Length == 1 || args.Length > 4){Usage();return -1;};
-  if (args.Length > 1) AssemblyFile = args[1];
-  if (args.Length > 2) AssemblyStamp = args[2];
-  if (args.Length > 3) 	{  
-      try { TextWriter tmp = Console.Out;
-	    FileStream fs1 = new FileStream(args[3], FileMode.Create);
-	    StreamWriter sw1 = new StreamWriter(fs1);
-	    Console.SetOut(sw1);	
-	    int result = Run(AssemblyFile,AssemblyStamp);
-	    sw1.Close();
-	    Console.SetOut(tmp);
-	    return result; }
-      catch {return -1;}
-  }
-  else {
-      return Run(AssemblyFile,AssemblyStamp);
-  };
+  if (args.Length < 4){Usage();return -1;};
+  String AssemblyFile = args[1];
+  String AssemblyStamp = args[2];
+  String[] SearchDirs = new String[args.Length - 4];
+  Array.Copy(args, 3, SearchDirs, 0, SearchDirs.Length);
+  try { TextWriter tmp = Console.Out;
+	FileStream fs1 = new FileStream(args[args.Length - 1], FileMode.Create);
+	StreamWriter sw1 = new StreamWriter(fs1);
+	Console.SetOut(sw1);	
+	int result = Run(AssemblyFile,AssemblyStamp,SearchDirs);
+	sw1.Close();
+	Console.SetOut(tmp);
+	return result; }
+  catch {return -1;}
 }
 
 }

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.134">
+  <PropertyGroup>
+    <IlasmRid>$(NETCoreSdkPortableRuntimeIdentifier)</IlasmRid>
+    <IlasmPackageId>runtime.$(IlasmRid).Microsoft.NETCore.ILAsm</IlasmPackageId>
+    <IlasmExe>ilasm</IlasmExe>
+    <IlasmExe Condition="$([MSBuild]::IsOSPlatform('Windows'))">ilasm.exe</IlasmExe>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageDownload Include="NETStandard.Library" Version="[$(NetStandardLibraryVersion)]" />
+    <PackageDownload Include="$(IlasmPackageId)" Version="[$(IlasmVersion)]" />
+    <PackageDownload Include="dotnet-ilverify" Version="[$(ILVerifyVersion)]" />
+  </ItemGroup>
+
+  <Target Name="CopySmlNetSdk" AfterTargets="Build">
+    <PropertyGroup>
+      <NetStandardRefSource>$(NuGetPackageRoot)netstandard.library/$(NetStandardLibraryVersion)/build/netstandard2.0/ref/</NetStandardRefSource>
+      <IlasmSource>$(NuGetPackageRoot)$(IlasmPackageId.ToLowerInvariant())/$(IlasmVersion)/runtimes/$(IlasmRid)/native/$(IlasmExe)</IlasmSource>
+      <ILVerifySource>$(NuGetPackageRoot)dotnet-ilverify/$(ILVerifyVersion)/tools/net10.0/any/</ILVerifySource>
+    </PropertyGroup>
+    <ItemGroup>
+      <NetStandardRefAssembly Include="$(NetStandardRefSource)*.dll" />
+      <ILVerifyFile Include="$(ILVerifySource)*.dll;$(ILVerifySource)*.json" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(NetStandardRefSource)netstandard.dll')" Text="netstandard.dll not found in $(NetStandardRefSource)" />
+    <Error Condition="!Exists('$(IlasmSource)')" Text="ilasm not found at $(IlasmSource)" />
+    <Error Condition="!Exists('$(ILVerifySource)ILVerify.dll')" Text="ILVerify.dll not found in $(ILVerifySource)" />
+    <Copy SourceFiles="@(NetStandardRefAssembly)" DestinationFolder="$(SmlNetRefDir)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IlasmSource);@(ILVerifyFile)" DestinationFolder="$(SmlNetToolsDir)" SkipUnchangedFiles="true" />
+    <Exec Condition="!$([MSBuild]::IsOSPlatform('Windows'))" Command="chmod +x &quot;$(SmlNetToolsDir)$(IlasmExe)&quot;" />
+  </Target>
+</Project>
