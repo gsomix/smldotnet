@@ -17,7 +17,6 @@ Symbol.Map.empty
 [
   ("add",       add),
   ("And",       And),
-  ("arraylength",fn r => ldlen),
   ("div",       Div),
   ("mul",       mul),
   ("neg",       neg),
@@ -201,6 +200,7 @@ case optype of
     StaticNewObj.init (RTInstrs.Empty, maxstack) { classty = valOf resrep, argtys = argreps }
 
   | "arrayload" => ($ (ldelem (valOf resrep)), maxstack)
+  | "arraylength" => (fromList [ldlen, conv (RTOps.nativeInt, RTOps.int)], maxstack)
   | "arraystore" => ($ (stelem (List.nth(argreps, 2))), maxstack)
   | "arraycopy" =>
     (fromList [call { name = Id.fromString "Copy", classty = RTOps.array,
