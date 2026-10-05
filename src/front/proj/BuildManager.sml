@@ -4,9 +4,6 @@ struct
     open Pickle
 
 
-    val time = wrap (Time.fromSeconds o Int32.toLarge, 
-	             Int32.fromLarge o Time.toSeconds) int32	
-
     val fileRef = pair(pair(string,time),
 	               list IdPickle.longid)
 
@@ -61,7 +58,7 @@ struct
 
     (* Format number: hi-byte is version no., lo-byte is BD [B]uil[D]Manager*)
     fun makePersister filename = 
-	Pickle.persist (Word8Vector.fromList [0wx04, 0wxBD], filename, pickler)
+	Pickle.persist (Word8Vector.fromList [0wx05, 0wxBD], filename, pickler)
 
     in
 

@@ -50,6 +50,9 @@ val word8vec = wrap (Word8Vector.fromList, Word8Vector.foldr op:: []) (list byte
 
 val string = wrap (String.implode, String.explode) (list char)
 
+val time = wrap (Time.fromSeconds o valOf o LargeInt.fromString,
+                 LargeInt.toString o Time.toSeconds) string
+
 fun nullary (c, m) = wrap (fn () => c, m) unit
 
 

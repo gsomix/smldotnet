@@ -112,8 +112,7 @@ in
     wrap (Fun, fn Fun x => x) EnvOps.funPickler
   ]
   in
-    pair (wrap (Time.fromSeconds o Int32.toLarge, 
-                Int32.fromLarge o Time.toSeconds) int32, pickler)
+    pair (time, pickler)
   end
 end (* of local open Pickle *)
 
@@ -124,7 +123,7 @@ end (* of local open Pickle *)
 val debugFlag = Controls.add true "debug.pickle"
 
 fun makePersister name = 
-  Pickle.persist (Word8Vector.fromList [0wxA8, 0wxC0], name, makePickler())
+  Pickle.persist (Word8Vector.fromList [0wxA9, 0wxC0], name, makePickler())
 
 (*----------------------------------------------------------------------*)
 (* Serialize dependency information for a single entity			*)

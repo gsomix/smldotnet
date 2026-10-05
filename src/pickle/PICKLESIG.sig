@@ -12,6 +12,7 @@ val byte : Word8.word PU
 val word32 : Word32.word PU
 val int32 : Int32.int PU
 val word8vec : Word8Vector.vector PU
+val time : Time.time PU
 
 (* Type constructors *)
 val option : 'a PU -> 'a option PU
