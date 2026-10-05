@@ -16,7 +16,7 @@ let
 in
   print (message ^ Time.toString (#usr t) ^ 
   (if Controls.get showGC
-   then "s including " ^ Time.toString (#gc t) ^ "s gc."
+   then "s including " ^ Time.toString (Timer.checkGCTime timer) ^ "s gc."
    else "s."))
 end
 

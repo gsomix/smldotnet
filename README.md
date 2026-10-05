@@ -22,6 +22,39 @@ compatible with the initial 1.0 and 1.1 releases.
 Although SML.NET fully  supports SML polymorphism,
 it does not yet produce or consume .NET generics
 
+Building with SML/NJ
+--------------------
+
+The compiler builds with SML/NJ 110.99.9. On Linux
+or macOS run
+
+```
+bld/buildsmlnet.sh
+```
+
+to produce the heap image `bin/smlnet.<arch>-<os>`,
+then start the compiler with `bin/smlnet.sh`. Set
+`SMLNJ_HOME` to use an SML/NJ installation that is
+not on the `PATH`. The lexer is generated with the
+legacy `ml-lex` (installed with SML/NJ), so it must
+be on the `PATH` when building.
+
+Several of the changes for newer SML/NJ are based
+on the work of Darin Minamoto ([@DarinM223]) in
+his fork https://github.com/DarinM223/smldotnet:
+
+* `Substring.all` is replaced by `Substring.full`,
+  and the GC time is read with `Timer.checkGCTime`,
+  following [922f305] on his `legacy` branch (which
+  builds SML.NET with 32-bit SML/NJ 110.99.4).
+* `Numbers.sml` accepts integers of up to 64 bits,
+  with range checks in `isi4` and `isu4`, following
+  [8c238e1] on his `master` branch.
+
+[@DarinM223]: https://github.com/DarinM223
+[922f305]: https://github.com/DarinM223/smldotnet/commit/922f305cfc701dc5eb17db22a43214a98a42353d
+[8c238e1]: https://github.com/DarinM223/smldotnet/commit/8c238e136fbcc193eb3e3038bd616212015dfc6b
+
 Features
 --------
 

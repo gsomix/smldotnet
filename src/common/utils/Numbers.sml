@@ -57,14 +57,13 @@ struct
    val intbits=
    let
       val ex=Fail(
-"Sorry, Numbers.sml needs rewriting to handle integers with over 32 bits"
+"Sorry, Numbers.sml needs rewriting to handle integers with over 64 bits"
          )
    in
       case Int.precision of
-         SOME i => if i>=33 then raise ex else i
+         SOME i => if i>=65 then raise ex else i
       |  NONE   => raise ex
    end
-   (* we assume isi4 and isu4 are always true *)
 
    val _=if intbits > Word.wordSize then
       raise Fail "Integers are larger than words!"
@@ -73,7 +72,7 @@ struct
 
    fun isi1(i)=i<=127 andalso i>= ~128
    fun isi2(i)=i<=32767 andalso i>= ~32768
-   fun isi4(i:int)=true
+   fun isi4(i)=Int.toLarge i<=2147483647 andalso Int.toLarge i>= ~2147483648
 
    fun isI1(i:Int32.int)=i<=127 andalso i>= ~128
    fun isI2(i:Int32.int)=i<=32767 andalso i>= ~32768
@@ -81,7 +80,7 @@ struct
 
    fun isu1(i)=i<=255 andalso i>=0
    fun isu2(i)=i<=65535 andalso i>=0
-   fun isu4(i:int)=true
+   fun isu4(i)=Int.toLarge i<=4294967295 andalso i>=0
 
    fun isU1(i:Int32.int)=i<=255 andalso i>=0
    fun isU2(i:Int32.int)=i<=65535 andalso i>=0

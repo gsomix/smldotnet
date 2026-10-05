@@ -461,7 +461,7 @@ let
       Option.map ((Substring.foldl(fn (#"+",n) => n+1  
 				    | (_,n) => n) 0)
 		  o
-		  Substring.all
+		  Substring.full
 		  o #name)
       (Symbol.Map.find(classes,id))
     | traverse (ref (Package { classes, packages }), id::ids) =

@@ -51,24 +51,18 @@ struct
       val precision=2*Word32.wordSize
       exception NumOverflow
 
-      val _ = if valOf(Int.precision)>Word32.wordSize
+      val _ = if valOf(Int.precision)>2*Word32.wordSize
               then raise Fail 
 "Please modify numops.fromInt and numops.toInt in RTLong.sml to cope with large integers."
               else {}
 
-      fun fromInt value= (* The only difficulty is with the sign bit. . . *)
-      if(value>=0) then
-         P(0w0,Word32.fromLargeInt(Int.toLarge(value)))
-      else
-         P(0wxffffffff,Word32.fromLargeInt(Int.toLarge(value)))
+      fun fromInt value=
+         P(Word32.fromLargeInt(IntInf.~>>(Int.toLarge(value),0w32)),
+           Word32.fromLargeInt(Int.toLarge(value)))
 
-      fun toInt(P(w1,w2))=(case w1 of
-         0w0         =>  ((Word32.toInt(w2)) handle Overflow => raise NumOverflow)
-      |  0wxffffffff => (let val i=Word32.toIntX(w2)
-   			 in if i<0 then i else raise NumOverflow
-   			 end handle Overflow => raise NumOverflow)
-      |  _   => raise NumOverflow
-      )
+      fun toInt(P(w1,w2))=
+         Int.fromLarge(IntInf.<<(Word32.toLargeIntX w1,0w32)+Word32.toLargeInt w2)
+         handle Overflow => raise NumOverflow
 
       val toShift=RTInt.numops.fromInt
 

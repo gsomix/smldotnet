@@ -44,7 +44,9 @@ is
    LexState.sml
 
    ml.grm
-   ml.lex
+   (* ml.lex relies on internals of the ml-lex (see NOTE ON COMPATIBILITY in ml.lex), 
+      but CM in SML/NJ 110.99.x runs "ml-ulex --ml-lex-mode" for .lex files *)
+   ml.lex : shell (target:ml.lex.sml ml-lex %s)
 
    MLLrVals.sml
    MLLex.sml

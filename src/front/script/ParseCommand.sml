@@ -98,7 +98,7 @@ let
 
   (* Strip leading and trailing spaces from a string *)
   fun strip s = Substring.string (Substring.dropr Char.isSpace 
-               (Substring.dropl Char.isSpace (Substring.all s)))
+               (Substring.dropl Char.isSpace (Substring.full s)))
 
   (* Read a quoted string *)
   (*@todo: escape mechanism? *)
@@ -393,7 +393,7 @@ let
 
 in
   (sourcemap, 
-    (Success (parseCommand [] (Substring.all s))) 
+    (Success (parseCommand [] (Substring.full s))) 
     handle ScriptParseError error => 
     Failure ([error]))
 end

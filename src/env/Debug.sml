@@ -52,7 +52,7 @@ in
   print ("Time elapsed = " ^ 
     Time.toString (#usr t) ^ "s usr, " ^
     Time.toString (#sys t) ^ "s sys, " ^
-    Time.toString (#gc t) ^ "s gc.\n");
+    Time.toString (Timer.checkGCTime timer) ^ "s gc.\n");
   y
 end
 

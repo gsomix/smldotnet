@@ -35,8 +35,10 @@ Group
    structure BytePackML (* Packs Word8Vectors into UStrings *)
    signature BYTEPACKML
 
+   (* Not exported: conflicts with Hash from newer smlnj-lib.
    structure Hash (* Hash functions *)
    signature HASH
+   *)
 
    (* Miscellaneous structures needed by the values structures but also
       by the backend *)

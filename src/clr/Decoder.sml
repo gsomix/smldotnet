@@ -507,27 +507,27 @@ in
     val assemblyFile = strip_nl(valOf(readLine ()))
     val stamp = strip_nl(valOf(readLine ()))
     val s = valOf(readLine ())
-    val (flags, super, interfaces) = decodeClassHeader (Substring.all s)
+    val (flags, super, interfaces) = decodeClassHeader (Substring.full s)
     fun readFields fields =
     case readLine () of
       NONE => fields
     | SOME s => if String.sub(s,0) = #"!"
                 then fields
-                else readFields (decodeField (Substring.all s)::fields)
+                else readFields (decodeField (Substring.full s)::fields)
 
     fun readMethods methods =
     case readLine () of
       NONE => methods
     | SOME s => if String.sub(s,0) = #"!"
                 then methods
-                else readMethods (decodeMethod (Substring.all s)::methods)
+                else readMethods (decodeMethod (Substring.full s)::methods)
 
     fun readConstructors methods =
     case readLine () of
       NONE => methods
     | SOME s => if String.sub(s,0) = #"!"
                 then methods
-                else readConstructors (decodeConstructor (Substring.all s)::methods)
+                else readConstructors (decodeConstructor (Substring.full s)::methods)
 
     val fields = readFields []
     val methods = readMethods [] @ readConstructors []
