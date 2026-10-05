@@ -9,11 +9,7 @@ Build Instructions
 
 To build the sample, run
 
-build.bat
-
-or, on Linux and macOS,
-
-./build.sh
+sml @SMLload=../../../bin/smlnet Hello
 
 Running the Code
 ----------------

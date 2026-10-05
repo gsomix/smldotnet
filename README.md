@@ -7,37 +7,34 @@ programming language Standard  ML that targets the
 language interoperability features for easy access
 to .NET libraries.
 
-Status
-------
-
-This  project  is  now defunct  and  what  follows
-applies  to the  last  stable release  as of  2006
-which is also the state of the current tree.
-
-The 2006 release supported the .NET Framework 2.0 and lower. 
-This tree targets modern .NET instead (see "Targeting .NET"
-below).
-
-Although SML.NET fully  supports SML polymorphism,
-it does not yet produce or consume .NET generics
-
 Building with SML/NJ
 --------------------
 
-The compiler builds with SML/NJ 110.99.9. On Linux
-or macOS run
+The compiler builds with SML/NJ 110.99.9, which must
+be on the `PATH` (`sml`, `ml-build` and the legacy
+`ml-lex` that generates the lexer). On any platform
+run
 
 ```
-bld/buildsmlnet.sh
+dotnet fsi build.fsx [target...]
 ```
 
-to produce the heap image `bin/smlnet.<arch>-<os>`
-and the .NET tools (see below), then start the
-compiler with `bin/smlnet.sh`. Set
-`SMLNJ_HOME` to use an SML/NJ installation that is
-not on the `PATH`. The lexer is generated with the
-legacy `ml-lex` (installed with SML/NJ), so it must
-be on the `PATH` when building.
+or `./build.fsx` on Linux and macOS. The targets are
+
+```
+tools     .NET tools and reference assemblies (see below)
+compiler  heap image bin/smlnet.<arch>-<os>
+all       tools and compiler (the default)
+```
+
+Start the compiler by loading its heap image:
+
+```
+sml @SMLload=bin/smlnet
+```
+
+The compiler finds its directory from the location
+of the heap image; set `SMLNETPATH` to override it.
 
 Several of the changes for newer SML/NJ are based
 on the work of Darin Minamoto ([@DarinM223]) in
@@ -58,8 +55,7 @@ his fork https://github.com/DarinM223/smldotnet:
 Targeting .NET
 --------------
 
-Building requires the .NET 10 SDK (`dotnet` on the
-`PATH`). `bld/buildsmlnet.sh` runs
+Building requires the .NET 10 SDK. `build.fsx tools` runs
 `dotnet build src/clr/tools/tools.slnx`, which builds
 `getmeta` and `clslist` (`src/clr/*.cs`) and fetches
 `ilasm`, `ILVerify` and the .NET Standard 2.0
@@ -77,7 +73,7 @@ or later and run with `dotnet`:
 
 ```
 cd doc/samples/hello
-../../../bin/smlnet.sh Hello
+sml @SMLload=../../../bin/smlnet Hello
 dotnet Hello.exe
 ```
 

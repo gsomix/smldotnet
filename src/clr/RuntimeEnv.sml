@@ -79,6 +79,25 @@ fun writeFile(dst,s) =
 fun toolsDir () = OS.Path.concat(!compilerBinDir, "tools")
 
 
+(* The parent of the directory holding the heap image, i.e. of bin.
+   The last @SMLload argument is the heap that the runtime loaded. *)
+fun heapCompilerDir () =
+  let
+    val prefix = "@SMLload="
+    val loads = List.filter (String.isPrefix prefix) (SMLofNJ.getAllArgs ())
+  in
+    case rev loads of
+      [] => NONE
+    | load::_ =>
+      let
+        val heap = String.extract(load, size prefix, NONE)
+        val binDir = case OS.Path.dir heap of "" => OS.Path.currentArc | dir => dir
+      in
+        SOME (OS.Path.getParent (OS.FileSys.fullPath binDir))
+      end
+      handle OS.SysErr _ => NONE
+  end
+
 fun setupRuntimeInfo arg =
   case arg of
     SOME {SMLNETPATH,FrameworkDir,FrameworkVersion} =>
@@ -88,10 +107,12 @@ fun setupRuntimeInfo arg =
      trySet(compilerBinDir, OS.Path.concat(!compilerDir, "bin")) andalso
      trySet(runtimeSysDir, PathConv.toInternal(OS.Path.concat(FrameworkDir,FrameworkVersion))))
   | NONE =>
-  (* First see if we've got an SMLNETPATH setting *)
-  case OS.Process.getEnv RuntimeNames.compilerDir of
-    NONE => 
-    failWith ("Startup script failed to set " ^ RuntimeNames.compilerDir)
+  (* SMLNETPATH if set, otherwise the directory the compiler was loaded from *)
+  case (case OS.Process.getEnv RuntimeNames.compilerDir of
+          NONE => heapCompilerDir ()
+        | dir => dir) of
+    NONE =>
+    failWith ("Cannot determine the SML.NET directory; set " ^ RuntimeNames.compilerDir)
 
   | SOME dir =>
     (

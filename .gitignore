@@ -4,20 +4,14 @@ src/parse/pre/ml.grm.desc
 src/parse/pre/ml.grm.sig
 src/parse/pre/ml.grm.sml
 src/parse/pre/ml.lex.sml
-bld/build.smlnet.log
-bld/build.smlnet.err
 
 # Compiler heap images
 bin/smlnet.*-*
-
-# SML/NJ runtime copied by bld/buildsmlnet.bat
-bin/run.x86-win32.exe
 
 # .NET tools and reference assemblies (src/clr/tools)
 bin/tools/
 bin/ref/
 src/clr/tools/*/obj/
-bld/build.tools.log
 
 # Metadata caches
 bin/netstandard2.0/
