@@ -1,0 +1,67 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-26, windows-2025]
+    runs-on: ${{ matrix.os }}
+    env:
+      SMLNJ_VERSION: 110.99.9
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.401
+
+      - name: Install SML/NJ (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p ~/smlnj && cd ~/smlnj
+          curl -fsSL "https://smlnj.org/dist/working/$SMLNJ_VERSION/config.tgz" | tar xz
+          config/install.sh -default 64
+          echo "$PWD/bin" >> "$GITHUB_PATH"
+
+      - name: Install SML/NJ (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          # There is no native arm64 SML/NJ; the amd64 build runs under Rosetta
+          sudo softwareupdate --install-rosetta --agree-to-license
+          cd "$RUNNER_TEMP"
+          curl -fsSLO "https://smlnj.org/dist/working/$SMLNJ_VERSION/smlnj-amd64-$SMLNJ_VERSION.pkg"
+          sudo installer -pkg "smlnj-amd64-$SMLNJ_VERSION.pkg" -target /
+          echo /usr/local/smlnj/bin >> "$GITHUB_PATH"
+
+      - name: Install SML/NJ (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $smlnj = 'C:\smlnj'
+          $msi = Join-Path $env:RUNNER_TEMP smlnj.msi
+          Invoke-WebRequest "https://smlnj.org/dist/working/$env:SMLNJ_VERSION/smlnj-$env:SMLNJ_VERSION.msi" -OutFile $msi
+          $p = Start-Process msiexec.exe -ArgumentList "/i `"$msi`" /qn /norestart INSTALLDIR=$smlnj" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "msiexec failed with exit code $($p.ExitCode)" }
+          # The installer sets SMLNJ_HOME and PATH for new sessions only
+          "SMLNJ_HOME=$smlnj" >> $env:GITHUB_ENV
+          "$smlnj\bin" >> $env:GITHUB_PATH
+
+      - name: Build tools and compiler
+        run: dotnet fsi build.fsx
+
+      - name: Build hello sample
+        working-directory: doc/samples/hello
+        run: sml '@SMLload=../../../bin/smlnet' Hello
+
+      - name: Run hello sample
+        working-directory: doc/samples/hello
+        run: dotnet Hello.exe
